@@ -1,0 +1,375 @@
+{
+  "title": "Posit CLI Configuration",
+  "description": "Configuration settings for the Posit CLI tool.",
+  "type": "object",
+  "properties": {
+    "pulumi": {
+      "title": "Pulumi",
+      "env_names": [
+        "posit_cli.pulumi"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/PulumiConfig"
+        }
+      ]
+    },
+    "workbench": {
+      "title": "Workbench",
+      "env_names": [
+        "posit_cli.workbench"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/WorkbenchConfig"
+        }
+      ]
+    },
+    "connect": {
+      "title": "Connect",
+      "env_names": [
+        "posit_cli.connect"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ConnectConfig"
+        }
+      ]
+    },
+    "package_manager": {
+      "title": "Package Manager",
+      "env_names": [
+        "posit_cli.package_manager"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/PackageManagerConfig"
+        }
+      ]
+    },
+    "utility_server": {
+      "title": "Utility Server",
+      "env_names": [
+        "posit_cli.utility_server"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/UtilityServerConfig"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "AWSConfig": {
+      "title": "AWSConfig",
+      "description": "AWS specific configuration items.",
+      "type": "object",
+      "properties": {
+        "region": {
+          "title": "Region",
+          "description": "The AWS region to deploy to.",
+          "default": "us-east-2",
+          "type": "string"
+        },
+        "tags": {
+          "title": "Tags",
+          "description": "The tags to apply to all AWS resources created.",
+          "type": "object"
+        }
+      }
+    },
+    "PulumiConfig": {
+      "title": "PulumiConfig",
+      "type": "object",
+      "properties": {
+        "project_name": {
+          "title": "Project Name",
+          "description": "The name of the project. This name will be used to name resources on AWS and your SSH keys. Keep it unique if you have multiple projects.",
+          "default": "posit-team",
+          "type": "string"
+        },
+        "stack_name": {
+          "title": "Stack Name",
+          "default": "dev",
+          "type": "string"
+        },
+        "additional_public_ssh_keys": {
+          "title": "Additional Public Ssh Keys",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "aws": {
+          "$ref": "#/definitions/AWSConfig"
+        }
+      }
+    },
+    "IngressEgress": {
+      "title": "IngressEgress",
+      "type": "object",
+      "properties": {
+        "description": {
+          "title": "Description",
+          "default": "",
+          "type": "string"
+        },
+        "protocol": {
+          "title": "Protocol",
+          "default": "-1",
+          "type": "string"
+        },
+        "from_port": {
+          "title": "From Port",
+          "default": 0,
+          "type": "integer"
+        },
+        "to_port": {
+          "title": "To Port",
+          "default": 0,
+          "type": "integer"
+        },
+        "cidr_blocks": {
+          "title": "Cidr Blocks",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ConfigFile": {
+      "title": "ConfigFile",
+      "type": "object",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "content": {
+          "title": "Content",
+          "type": "string"
+        },
+        "permissions": {
+          "title": "Permissions",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "content"
+      ]
+    },
+    "WorkbenchConfig": {
+      "title": "WorkbenchConfig",
+      "description": "EC2 specific configuration items.",
+      "type": "object",
+      "properties": {
+        "instance_type": {
+          "title": "Instance Type",
+          "description": "Select the ec2 instance type. Common choices may be 't3.small', 't3.medium', 't3.large'.",
+          "default": "t3.small",
+          "type": "string"
+        },
+        "operating_system": {
+          "title": "Operating System",
+          "description": "The name of the operating system to use or a specific AMI ID. Allowable values for operating system are: ['ubuntu-22']",
+          "default": "ubuntu-22",
+          "type": "string"
+        },
+        "number_of_servers": {
+          "title": "Number Of Servers",
+          "default": 1,
+          "type": "integer"
+        },
+        "install_software": {
+          "title": "Install Software",
+          "default": true,
+          "type": "boolean"
+        },
+        "install_script": {
+          "title": "Install Script",
+          "default": "https://download2.rstudio.org/server/jammy/amd64/rstudio-workbench-2023.03.1-446.pro1-amd64.deb",
+          "type": "string"
+        },
+        "egress": {
+          "title": "Egress",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IngressEgress"
+          }
+        },
+        "ingress": {
+          "title": "Ingress",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IngressEgress"
+          }
+        },
+        "config": {
+          "title": "Config",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ConfigFile"
+          }
+        }
+      }
+    },
+    "ConnectConfig": {
+      "title": "ConnectConfig",
+      "description": "EC2 specific configuration items.",
+      "type": "object",
+      "properties": {
+        "instance_type": {
+          "title": "Instance Type",
+          "description": "Select the ec2 instance type. Common choices may be 't3.small', 't3.medium', 't3.large'.",
+          "default": "t3.small",
+          "type": "string"
+        },
+        "operating_system": {
+          "title": "Operating System",
+          "description": "The name of the operating system to use or a specific AMI ID. Allowable values for operating system are: ['ubuntu-22']",
+          "default": "ubuntu-22",
+          "type": "string"
+        },
+        "number_of_servers": {
+          "title": "Number Of Servers",
+          "default": 1,
+          "type": "integer"
+        },
+        "install_software": {
+          "title": "Install Software",
+          "default": true,
+          "type": "boolean"
+        },
+        "install_script": {
+          "title": "Install Script",
+          "default": "https://cdn.rstudio.com/connect/2023.05/rstudio-connect_2023.05.0~ubuntu22_amd64.deb",
+          "type": "string"
+        },
+        "egress": {
+          "title": "Egress",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IngressEgress"
+          }
+        },
+        "ingress": {
+          "title": "Ingress",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IngressEgress"
+          }
+        },
+        "config": {
+          "title": "Config",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ConfigFile"
+          }
+        }
+      }
+    },
+    "PackageManagerConfig": {
+      "title": "PackageManagerConfig",
+      "description": "EC2 specific configuration items.",
+      "type": "object",
+      "properties": {
+        "instance_type": {
+          "title": "Instance Type",
+          "description": "Select the ec2 instance type. Common choices may be 't3.small', 't3.medium', 't3.large'.",
+          "default": "t3.small",
+          "type": "string"
+        },
+        "operating_system": {
+          "title": "Operating System",
+          "description": "The name of the operating system to use or a specific AMI ID. Allowable values for operating system are: ['ubuntu-22']",
+          "default": "ubuntu-22",
+          "type": "string"
+        },
+        "number_of_servers": {
+          "title": "Number Of Servers",
+          "default": 1,
+          "type": "integer"
+        },
+        "install_software": {
+          "title": "Install Software",
+          "default": true,
+          "type": "boolean"
+        },
+        "install_script": {
+          "title": "Install Script",
+          "default": "https://cdn.posit.co/package-manager/ubuntu22/amd64/rstudio-pm_2023.04.0-6_amd64.deb",
+          "type": "string"
+        },
+        "bootstrap": {
+          "title": "Bootstrap",
+          "default": false,
+          "type": "boolean"
+        },
+        "egress": {
+          "title": "Egress",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IngressEgress"
+          }
+        },
+        "ingress": {
+          "title": "Ingress",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IngressEgress"
+          }
+        },
+        "config": {
+          "title": "Config",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ConfigFile"
+          }
+        }
+      }
+    },
+    "UtilityServerConfig": {
+      "title": "UtilityServerConfig",
+      "description": "EC2 specific configuration items.",
+      "type": "object",
+      "properties": {
+        "instance_type": {
+          "title": "Instance Type",
+          "description": "Select the ec2 instance type. Common choices may be 't3.small', 't3.medium', 't3.large'.",
+          "default": "t3.small",
+          "type": "string"
+        },
+        "operating_system": {
+          "title": "Operating System",
+          "description": "The name of the operating system to use or a specific AMI ID. Allowable values for operating system are: ['ubuntu-22']",
+          "default": "ubuntu-22",
+          "type": "string"
+        },
+        "egress": {
+          "title": "Egress",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IngressEgress"
+          }
+        },
+        "ingress": {
+          "title": "Ingress",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IngressEgress"
+          }
+        },
+        "config": {
+          "title": "Config",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ConfigFile"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,240 @@
+# yaml-language-server: =.posit/schema.json
+pulumi:
+  project_name: wb-azure
+  stack_name: dev
+  additional_public_ssh_keys: []
+  aws:
+    region: us-east-2
+    tags:
+      rs:environment: development
+      rs:project: solutions
+      rs:owner: rika.gorn@posit.co
+workbench:
+  instance_type: t3.small
+  operating_system: ubuntu-22
+  number_of_servers: 1
+  install_software: true
+  install_script: https://download2.rstudio.org/server/jammy/amd64/rstudio-workbench-2023.03.1-446.pro1-amd64.deb
+  egress:
+  - description: Allow all outbound traffic
+    protocol: '-1'
+    from_port: 0
+    to_port: 0
+    cidr_blocks:
+    - 0.0.0.0/0
+  ingress:
+  - description: SSH
+    protocol: TCP
+    from_port: 22
+    to_port: 22
+    cidr_blocks:
+    - 0.0.0.0/0
+  - description: HTTP
+    protocol: TCP
+    from_port: 80
+    to_port: 80
+    cidr_blocks:
+    - 0.0.0.0/0
+  - description: HTTPS
+    protocol: TCP
+    from_port: 443
+    to_port: 443
+    cidr_blocks:
+    - 0.0.0.0/0
+  - description: Posit Workbench
+    protocol: TCP
+    from_port: 8787
+    to_port: 8787
+    cidr_blocks:
+    - 0.0.0.0/0
+  config:
+  - path: /etc/rstudio/rserver.conf
+    content: |-
+      # Refer to: https://docs.posit.co/ide/server-pro/reference/rserver_conf.html
+      server-user=rstudio-server
+      launcher-address=localhost
+      launcher-port=5559
+      launcher-sessions-callback-address=http://localhost:8787
+      launcher-default-cluster=Local
+      launcher-use-ssl=0
+      launcher-sessions-enabled=1
+      auth-pam-sessions-enabled=1
+  - path: /etc/rstudio/launcher.conf
+    content: |-
+      # Refer to: https://docs.posit.co/ide/server-pro/job_launcher/configuration.html#launcher-configuration
+      [server]
+      address=localhost
+      port=5559
+      server-user=rstudio-server
+      admin-group=rstudio-server
+
+      [cluster]
+      name=Local
+      type=Local
+  - path: /etc/rstudio/database.conf
+    content: |-
+      # Refer to: https://docs.posit.co/ide/server-pro/database/configuration.html
+      provider=sqlite
+  - path: /etc/rstudio/jupyter.conf
+    content: |-
+      # Refer to: https://docs.posit.co/ide/server-pro/jupyter_sessions/configuration.html
+      jupyter-exe=/opt/python/3.11.1/bin/jupyter
+      notebooks-enabled=1
+      labs-enabled=1
+      notebook-args=--allow-root --ip=0.0.0.0
+      session-cull-minutes=0
+  - path: /etc/rstudio/vscode.conf
+    content: |-
+      # Refer to: https://docs.posit.co/ide/server-pro/vscode_sessions/configuration.html
+      enabled=1
+      exe=/usr/lib/rstudio-server/bin/code-server/bin/code-server
+      args=--host=0.0.0.0
+  - path: /etc/rstudio/vscode.extensions.conf
+    content: |-
+      # Refer to: https://docs.posit.co/ide/server-pro/vscode_sessions/installation.html#pre-installing-vs-code-extensions
+      quarto.quarto
+      REditorSupport.r@2.6.1
+      ms-python.python
+  - path: /etc/rstudio/vscode-user-settings.json
+    content: |-
+      {
+          "terminal.integrated.shell.linux": "/bin/bash",
+          "extensions.autoUpdate": false,
+          "extensions.autoCheckUpdates": false
+      }
+  - path: /etc/rstudio/logging.conf
+    content: |-
+      # Refer to: https://docs.posit.co/ide/server-pro/server_management/logging.html
+      [*]
+      log-level=debug
+  - path: /etc/rstudio/notifications.conf
+    content: '# Refer to: https://docs.posit.co/ide/server-pro/rstudio_pro_sessions/notifications.html'
+  - path: /etc/rstudio/r-versions
+    content: |-
+      # Refer to: https://docs.posit.co/ide/server-pro/r/using_multiple_versions_of_r.html
+      /opt/R/4.2.2
+  - path: /etc/rstudio/repos.conf
+    content: |-
+      # Refer to: https://docs.posit.co/ide/server-pro/rstudio_pro_sessions/package_installation.html#cran-repositories
+      CRAN=https://packagemanager.rstudio.com/cran/__linux__/jammy/latest
+      RSPM=https://packagemanager.rstudio.com/cran/__linux__/jammy/latest
+  - path: /etc/sssd/sssd.conf
+    content: |-
+      [sssd]
+      config_file_version = 2
+      services = nss, pam
+      domains = LDAP
+
+      [nss]
+      filter_users = root,named,avahi,haldaemon,dbus,radiusd,news,nscd
+      filter_groups =
+
+      [pam]
+
+      [domain/LDAP]
+      default_shell = /bin/bash
+      id_provider = ldap
+      auth_provider = ldap
+      chpass_provider = ldap
+      sudo_provider = ldap
+      enumerate = true
+      cache_credentials = false
+      ldap_schema = rfc2307
+      ldap_uri = ldap://3.128.28.137:389
+      ldap_search_base = dc=example,dc=org
+      ldap_user_search_base = dc=example,dc=org
+      ldap_user_object_class = posixAccount
+      ldap_user_name = uid
+      ldap_group_search_base = dc=example,dc=org
+      ldap_group_object_class = posixGroup
+      ldap_group_name = cn
+      ldap_id_use_start_tls = false
+      ldap_tls_reqcert = never
+      ldap_tls_cacert = /etc/ssl/certs/ca-certificates.crt
+      ldap_default_bind_dn = cn=admin,dc=example,dc=org
+      ldap_default_authtok = admin
+      access_provider = ldap
+      ldap_access_filter = (objectClass=posixAccount)
+      min_id = 1
+      max_id = 0
+      ldap_user_uuid = entryUUID
+      ldap_user_shell = loginShell
+      ldap_user_home_directory = homeDirectory
+      ldap_user_uid_number = uidNumber
+      ldap_user_gid_number = gidNumber
+      ldap_group_gid_number = gidNumber
+      ldap_group_uuid = entryUUID
+      ldap_group_member = memberUid
+      ldap_auth_disable_tls_never_use_in_production = true
+      use_fully_qualified_names = false
+      ldap_access_order = filter
+connect:
+  number_of_servers: 0
+package_manager:
+  number_of_servers: 0
+utility_server:
+  instance_type: t3.small
+  operating_system: ubuntu-22
+  egress:
+  - description: Allow all outbound traffic
+    protocol: '-1'
+    from_port: 0
+    to_port: 0
+    cidr_blocks:
+    - 0.0.0.0/0
+  ingress:
+  - description: SSH
+    protocol: TCP
+    from_port: 22
+    to_port: 22
+    cidr_blocks:
+    - 0.0.0.0/0
+  - description: HTTP
+    protocol: TCP
+    from_port: 80
+    to_port: 80
+    cidr_blocks:
+    - 0.0.0.0/0
+  - description: HTTPS
+    protocol: TCP
+    from_port: 443
+    to_port: 443
+    cidr_blocks:
+    - 0.0.0.0/0
+  - description: LDAP
+    protocol: TCP
+    from_port: 389
+    to_port: 389
+    cidr_blocks:
+    - 0.0.0.0/0
+  - description: Postgres
+    protocol: TCP
+    from_port: 5432
+    to_port: 5432
+    cidr_blocks:
+    - 0.0.0.0/0
+  - description: NFS
+    protocol: TCP
+    from_port: 2049
+    to_port: 2049
+    cidr_blocks:
+    - 0.0.0.0/0
+  - description: Posit Workbench
+    protocol: TCP
+    from_port: 8787
+    to_port: 8787
+    cidr_blocks:
+    - 0.0.0.0/0
+  - description: Posit Connect
+    protocol: TCP
+    from_port: 3939
+    to_port: 3939
+    cidr_blocks:
+    - 0.0.0.0/0
+  - description: Posit Package Manager
+    protocol: TCP
+    from_port: 4242
+    to_port: 4242
+    cidr_blocks:
+    - 0.0.0.0/0
+  config: []
